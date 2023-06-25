@@ -21,11 +21,13 @@ class Game
     when GameState::INIT
       start_match()
       @game_state = GameState::PLAYER_INPUT
+
     when GameState::PLAYER_INPUT
       print_board()
       puts "Player #{@current_player}, choose a column to drop your disk into."
       @input = get_input()
       @game_state = GameState::UPDATE_BOARD
+
     when GameState::UPDATE_BOARD
       @last_move = make_move(@current_player, *@input - 1)
       if (@last_move == nil)
@@ -36,14 +38,20 @@ class Game
           @winner = @current_player
           @scores[@winner - 1] += 1
           @game_state = GameState::WIN_SCREEN
+        elsif (check_for_tie())
+          @game_state = GameState::WIN_SCREEN
         else
           @current_player = @current_player % 2 + 1
           @game_state = GameState::PLAYER_INPUT
         end
       end
+
     when GameState::WIN_SCREEN
-      # TODO: Address the case where all the tiles have been filled
-      puts "Player #{@winner} has won the match!"
+      if (@winner == nil)
+        puts "The players have tied!"
+      else
+        puts "Player #{@winner} has won the match!"
+      end
       puts "Play another round? (y/n)"
       play_another = gets.chomp()
       if play_another.downcase == 'y'
@@ -52,10 +60,12 @@ class Game
         puts "Final Score: Player 1 = #{@scores[0]}; Player 2 = #{@scores[1]}"
         @in_progress = false
       end
+
     end
   end
 
   def start_match
+    @winner = nil
     @board = Board.new(GamePrefs::BOARD_WIDTH, GamePrefs::BOARD_HEIGHT)
   end
 
@@ -89,5 +99,7 @@ class Game
     return highest >= GamePrefs::N_TO_CONNECT
   end
 
-
+  def check_for_tie()
+    return @board.check_for_tie
+  end
 end

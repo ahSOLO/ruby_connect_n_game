@@ -74,6 +74,15 @@ class Board
     return count
   end
 
+  def check_for_tie()
+    for i in 0..GamePrefs::BOARD_WIDTH - 1 do
+      if @tiles[0][i] == TileState::EMPTY
+        return false
+      end
+    end
+    return true
+  end
+
   private 
 
   def update_tile(row, column, tilestate)
